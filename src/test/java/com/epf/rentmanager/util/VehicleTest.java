@@ -1,4 +1,4 @@
-package rentmanager.util;
+package com.epf.rentmanager.util;
 
 import com.epf.rentmanager.model.Vehicle;
 import org.junit.jupiter.api.Test;

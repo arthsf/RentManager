@@ -1,5 +1,6 @@
 package com.epf.rentmanager.service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -96,6 +97,18 @@ public class VehicleService {
 			e.printStackTrace();
 		}
 		
+		return null;
+	}
+
+	public Boolean isVehicleAvailable (long vehicleId, LocalDate dateDebut, LocalDate dateFin) throws ServiceException {
+
+		try {
+
+			return this.vehicleDao.isVehicleAvailable(vehicleId, dateDebut, dateFin);
+		} catch (DaoException e) {
+			e.printStackTrace();
+		}
+
 		return null;
 	}
 	

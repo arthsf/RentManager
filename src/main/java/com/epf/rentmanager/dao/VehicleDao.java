@@ -1,10 +1,7 @@
 package com.epf.rentmanager.dao;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -192,6 +189,34 @@ public int countAllVehicle() throws DaoException {
 		} catch (SQLException e) {
 			throw new DaoException();
 		}
+	}
+
+	public Boolean isVehicleAvailable(long vehicleID, LocalDate DateDebut, LocalDate DateFin) throws DaoException {
+
+		try {
+
+			Connection conn = ConnectionManager.getConnection();
+			PreparedStatement pstmt = conn.prepareStatement("SELECT COUNT(*) FROM Reservation WHERE id = ? AND ((DATEDIFF(debut, ?) > 0) AND (DATEDIFF(?, fin) < 0));");
+			pstmt.setLong(1, vehicleID);
+			pstmt.setString(2, String.valueOf(Date.valueOf(DateDebut)));
+			pstmt.setString(3, String.valueOf(Date.valueOf(DateFin)));
+			ResultSet rs = pstmt.executeQuery();
+
+			if (rs.next()) {
+
+				if (rs.getInt(1) == 0) {
+					return true;
+				}
+			}
+
+			conn.close();
+			return false;
+
+		} catch (SQLException e) {
+			throw new DaoException();
+		}
+
+
 	}
 
 }

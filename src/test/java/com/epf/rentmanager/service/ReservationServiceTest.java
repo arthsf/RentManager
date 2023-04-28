@@ -1,4 +1,4 @@
-package rentmanager.service;
+package com.epf.rentmanager.service;
 
 import com.epf.rentmanager.dao.ReservationDao;
 import com.epf.rentmanager.exception.DaoException;

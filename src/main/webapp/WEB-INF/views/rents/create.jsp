@@ -1,7 +1,7 @@
-<%@ taglib uri = "http://java.sun.com/jsp/jstl/core" prefix = "c" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <!DOCTYPE html>
 <html>
-<%@include file="/WEB-INF/views/common/head.jsp"%>
+<%@include file="/WEB-INF/views/common/head.jsp" %>
 <body class="hold-transition skin-blue sidebar-mini">
 <div class="wrapper">
 
@@ -25,13 +25,15 @@
                     <!-- Horizontal Form -->
                     <div class="box">
                         <!-- form start -->
-                        <form class="form-horizontal" method="post" action="${pageContext.request.contextPath}/rents/create">
+                        <form class="form-horizontal" method="post"
+                              action="${pageContext.request.contextPath}/rents/create">
                             <div class="box-body">
                                 <div class="form-group">
                                     <label for="vehicle" class="col-sm-2 control-label">Voiture</label>
 
                                     <div class="col-sm-10">
-                                        <select class="form-control" id="vehicle" name="vehicle">
+                                        <select class="form-control" id="vehicle" name="vehicle" onchange="checkVehicleAvailability()">
+                                            <option value="">--S&eacute;lectionner un v&eacute;hicule--</option>
                                             <c:forEach items="${vehicules}" var="vehicule">
                                                 <option value="${vehicule.id}">${vehicule.constructor}</option>
                                             </c:forEach>
@@ -64,12 +66,14 @@
                                     </div>
                                 </div>
                                 <div class="alert alert-danger" role="alert"
-										id="warningSection" style="display: none">Pas plus de 7 jours de suite !
-									</div>
+                                     id="warningSection" style="display: none">Pas plus de 7 jours de suite !
+                                </div>
                             </div>
                             <!-- /.box-body -->
                             <div class="box-footer">
-                                <button type="submit" class="btn btn-info pull-right" id="add_btn">Ajouter</button>
+                                <button type="submit" class="btn btn-info pull-right" id="add_btn" disabled="disabled">
+                                    Ajouter
+                                </button>
                             </div>
                             <!-- /.box-footer -->
                         </form>
@@ -93,16 +97,57 @@
 <script src="${pageContext.request.contextPath}/resources/plugins/input-mask/jquery.inputmask.extensions.js"></script>
 
 <script>
+    function checkVehicleAvailability() {
+        let vehicleId = $('#vehicle').val();
+        let debut = $('#debut').val();
+        let fin = $('#fin').val();
+        if (vehicleId && debut && fin) {
+            $.ajax({
+                url: "${pageContext.request.contextPath}/cars/availability",
+                type: "POST",
+                data: {
+                    vehicleId: vehicleId,
+                    debut: debut,
+                    fin: fin
+                },
+                success: function (response) {
+                    if (response.isAvailable) {
+                        $('#add_btn').prop('disabled', false);
+                        $('#warningSection').hide();
+                    } else {
+                        $('#add_btn').prop('disabled', true);
+                        $('#warningSection').show();
+                    }
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                }
+            });
+        }
+    }
+
     $(function () {
         $('[data-mask]').inputmask()
     });
-    $('#debut').on('change',()=>{
-        if ($('#fin').val()){
-            var date1 = new Date($('#fin').val());
-            var date2 = new Date($('#debut').val());
-            var diffTime = Math.abs(date2 - date1);
-            var diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            if(diffDays>7){
+
+    $('#vehicle').on('change', () => {
+        if ($('#vehicle').val() === "") {
+            document.getElementById('add_btn').disabled = true;
+        } else {
+            if (resList.includes("Conflict")) {
+                document.getElementById('add_btn').disabled = true;
+            } else {
+                document.getElementById('add_btn').disabled = false;
+            }
+        }
+    });
+    $('#debut').on('change', () => {
+        if ($('#fin').val()) {
+            let date1 = new Date($('#fin').val());
+            let date2 = new Date($('#debut').val());
+            let diffTime = Math.abs(date2 - date1);
+            let diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            if (diffDays > 7) {
                 document.getElementById('add_btn').disabled = true;
                 document.getElementById('warningSection').style.display = 'block';
             } else {
@@ -111,13 +156,13 @@
             }
         }
     });
-    $('#fin').on('change',()=>{
-        if ($('#debut').val()){
-            var date1 = new Date($('#fin').val());
-            var date2 = new Date($('#debut').val());
-            var diffTime = Math.abs(date2 - date1);
-            var diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            if(diffDays>7){
+    $('#fin').on('change', () => {
+        if ($('#debut').val()) {
+            let date1 = new Date($('#fin').val());
+            let date2 = new Date($('#debut').val());
+            let diffTime = Math.abs(date2 - date1);
+            let diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            if (diffDays > 7) {
                 document.getElementById('add_btn').disabled = true;
                 document.getElementById('warningSection').style.display = 'block';
             } else {
